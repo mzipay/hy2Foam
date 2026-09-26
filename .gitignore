@@ -1,6 +1,7 @@
 *.bak
 *.log
 *.swp
+*.tgz
 *.tmp
 
 !.keep
