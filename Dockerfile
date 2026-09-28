@@ -54,6 +54,8 @@ SHELL ["/bin/bash", "-c"]
 
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt-get update && \
+	apt-get install -y --no-install-recommends ca-certificates && \
+	update-ca-certificates && \
 	apt-get install -y --no-install-recommends g++-7 gcc-7 && \
 	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 7 && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 7 && \
@@ -65,7 +67,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	useradd -m -s /bin/bash hy2user && \
 	export HOME=/home/hy2user && \
 	wget -O /tmp/OpenFOAM-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/OpenFOAM-v1706.tgz && \
+	test -s /tmp/OpenFOAM-v1706.tgz && \
 	wget -O /tmp/ThirdParty-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/ThirdParty-v1706.tgz && \
+	test -s /tmp/ThirdParty-v1706.tgz && \
 	mkdir -p /opt/OpenFOAM && \
 	cd /opt/OpenFOAM && \
 	tar -zxf /tmp/OpenFOAM-v1706.tgz && \
@@ -93,7 +97,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.o" -delete 2>/dev/null || true && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.dep" -delete 2>/dev/null || true && \
 	chown -R hy2user:hy2user /home/hy2user && \
-	apt-get purge --auto-remove -y ${BUILD_PACKGES}
+	apt-get purge --auto-remove -y ${BUILD_PACKAGES}
 
 USER hy2user
 
