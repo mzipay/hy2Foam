@@ -45,6 +45,9 @@ jobs:
           echo "Disk space after cleanup:"
           df -h /
 
+      - name: Stop Docker (needed before relocating storage)
+        run: sudo systemctl stop docker
+
       - name: Maximize build space
         uses: easimon/maximize-build-space@master
         with:
@@ -55,6 +58,14 @@ jobs:
           remove-haskell: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'false'
+          build-mount-path: '/var/lib/docker'
+
+      - name: Restart Docker
+        run: |
+          sudo systemctl start docker
+          docker info | grep "Docker Root Dir"
+          echo "Disk space after Docker restart:"
+          df -h /
 
       - name: Check out repository
         uses: actions/checkout@v4

@@ -55,16 +55,13 @@ SHELL ["/bin/bash", "-c"]
 RUN export DEBIAN_FRONTEND=noninteractive && \
 	apt-get update && \
 	apt-get install -y --no-install-recommends g++-7 gcc-7 && \
-	df -h && \
 	update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 7 && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 7 && \
 	update-alternatives --set gcc /usr/bin/gcc-7 && \
 	update-alternatives --set g++ /usr/bin/g++-7 && \
 	apt-get install -y --no-install-recommends ${BUILD_PACKAGES} ${REQUIRED_PACKAGES} ${WANTED_PACKAGES} && \
-	df -h && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* && \
-	df -h && \
 	useradd -m -s /bin/bash hy2user && \
 	export HOME=/home/hy2user && \
 	wget -O /tmp/OpenFOAM-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/OpenFOAM-v1706.tgz && \
@@ -74,37 +71,29 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	tar -zxf /tmp/OpenFOAM-v1706.tgz && \
 	tar -zxf /tmp/ThirdParty-v1706.tgz && \
 	rm -rf /tmp/OpenFOAM-v1706.tgz /tmp/ThirdParty-v1706.tgz && \
-	df -h && \
 	echo '. /opt/OpenFOAM/OpenFOAM-v1706/etc/bashrc' >> /home/hy2user/.bashrc && \
 	. /opt/OpenFOAM/OpenFOAM-v1706/etc/bashrc && \
 	export WM_NCOMPPROCS=${NPROCS} && \
 	cd $WM_THIRD_PARTY_DIR && \
 	./Allwmake && \
-	df -h && \
 	rm -rf build gcc-* gmp-* mpfr-* binutils-* boost* ParaView-* qt-* *.tgz *.tar.gz && \
-	df -h && \
 	cd $WM_PROJECT_DIR && \
 	./Allwmake && \
-	df -h && \
 	find build -name "*.o" -delete 2>/dev/null || true && \
 	find build -name "*.dep" -delete 2>/dev/null || true && \
 	rm -rf build && \
-	df -h && \
 	mkdir -p "$WM_PROJECT_USER_DIR" && \
 	cd $WM_PROJECT_USER_DIR && \
 	git clone --depth 1 --branch master --single-branch https://github.com/hystrath/hyStrath.git && \
 	cd hyStrath && \
 	sed -i '/^progress_bar()/,/^}/c\progress_bar() { :; }' install.sh && \
 	echo "1" | ./install.sh ${NPROCS} && \
-	df -h && \
 	su hy2user -c '. /home/hy2user/.bashrc && test -x "$FOAM_APPBIN/hy2Foam"' && \
 	rm -rf .git && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.o" -delete 2>/dev/null || true && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.dep" -delete 2>/dev/null || true && \
-	df -h && \
 	chown -R hy2user:hy2user /home/hy2user && \
-	apt-get purge --auto-remove -y ${BUILD_PACKGES} && \
-	df -h
+	apt-get purge --auto-remove -y ${BUILD_PACKGES}
 
 USER hy2user
 
