@@ -18,41 +18,32 @@ FROM ubuntu:20.04
 LABEL org.opencontainers.image.authors="Matthew Zipay <a85:D0fo8@<k+RASuTBARoo>"
 
 ARG BUILD_PACKAGES="\
+ bc \
  git \
  wget \
 "
 
 ARG REQUIRED_PACKAGES="\
- bc \
  bison \
  build-essential \
  cmake \
  flex \
- gnuplot \
+ gnuplot-nox \
  libboost-system-dev \
  libboost-thread-dev \
+ libcgal-dev \
  libncurses-dev \
  libopenmpi-dev \
  libreadline-dev \
+ libscotch-dev \
  libxt-dev \
  openmpi-bin \
- software-properties-common \
  zlib1g-dev \
-"
-
-ARG OPTIONAL_PACKAGES_QT4="\
- qt4-dev-tools \
- libqt4-dev \
- libqt4-opengl-dev \
- freeglut3-dev \
- libqtwebkit-dev \
- libscotch-dev \
- libcgal-dev \
 "
 
 ARG WANTED_PACKAGES="\
  nano-tiny \
- neovim \
+ vim-tiny \
 "
 
 # override this if you have more than 2 cores available!
@@ -70,9 +61,6 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	update-alternatives --set gcc /usr/bin/gcc-7 && \
 	update-alternatives --set g++ /usr/bin/g++-7 && \
 	apt-get install -y ${BUILD_PACKAGES} ${REQUIRED_PACKAGES} ${WANTED_PACKAGES} && \
-	add-apt-repository -y ppa:rock-core/qt4 && \
-	apt-get update && \
-	apt-get install -y ${OPTIONAL_PACKAGES_QT4} && \
 	useradd -m -s /bin/bash hy2user && \
 	export HOME=/home/hy2user && \
 	wget -O /tmp/OpenFOAM-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/OpenFOAM-v1706.tgz && \
