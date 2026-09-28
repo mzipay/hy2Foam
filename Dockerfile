@@ -32,6 +32,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	update-alternatives --set g++ /usr/bin/g++-7 && \
 	useradd -m -s /bin/bash hy2user && \
 	export HOME=/home/hy2user && \
+	apt-get install -y wget && \
 	wget -O /tmp/OpenFOAM-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/OpenFOAM-v1706.tgz && \
 	wget -O /tmp/ThirdParty-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/ThirdParty-v1706.tgz && \
 	mkdir -p /opt/OpenFOAM && \
@@ -58,9 +59,10 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	rm -rf build && \
 	mkdir -p "$WM_PROJECT_USER_DIR" && \
 	cd $WM_PROJECT_USER_DIR && \
+	apt-get install -y git && \
 	git clone --depth 1 --branch master --single-branch https://github.com/hystrath/hyStrath.git && \
 	cd hyStrath/ && \
-	./install.sh $NUMPROCS && \
+	echo "1" | ./install.sh $NUMPROCS && \
 	rm -rf .git && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.o" -delete 2>/dev/null || true && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.dep" -delete 2>/dev/null || true && \
