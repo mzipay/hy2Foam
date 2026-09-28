@@ -17,9 +17,47 @@
 FROM ubuntu:20.04
 LABEL org.opencontainers.image.authors="Matthew Zipay <a85:D0fo8@<k+RASuTBARoo>"
 
+ARG BUILD_PACKAGES="\
+ git \
+ wget \
+"
+
+ARG REQUIRED_PACKAGES="\
+ bc \
+ bison \
+ build-essential \
+ cmake \
+ flex \
+ gnuplot \
+ libboost-system-dev \
+ libboost-thread-dev \
+ libncurses-dev \
+ libopenmpi-dev \
+ libreadline-dev \
+ libxt-dev \
+ openmpi-bin \
+ software-properties-common \
+ zlib1g-dev \
+"
+
+ARG OPTIONAL_PACKAGES_QT4="\
+ qt4-dev-tools \
+ libqt4-dev \
+ libqt4-opengl-dev \
+ freeglut3-dev \
+ libqtwebkit-dev \
+ libscotch-dev \
+ libcgal-dev \
+"
+
+ARG WANTED_PACKAGES="\
+ nano-tiny \
+ neovim \
+"
+
 # override this if you have more than 2 cores available!
 # (but note that OpenFOAM caps it at 8)
-ARG NUMPROCS=2
+ARG NPROCS=2
 
 # NOTE: this Docker-specific, so need to use "--format docker" for podman!
 SHELL ["/bin/bash", "-c"]
@@ -31,9 +69,12 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 7 && \
 	update-alternatives --set gcc /usr/bin/gcc-7 && \
 	update-alternatives --set g++ /usr/bin/g++-7 && \
+	apt-get install -y ${BUILD_PACKAGES} ${REQUIRED_PACKAGES} ${WANTED_PACKAGES} && \
+	add-apt-repository -y ppa:rock-core/qt4 && \
+	apt-get update && \
+	apt-get install -y ${OPTIONAL_PACKAGES_QT4} && \
 	useradd -m -s /bin/bash hy2user && \
 	export HOME=/home/hy2user && \
-	apt-get install -y wget && \
 	wget -O /tmp/OpenFOAM-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/OpenFOAM-v1706.tgz && \
 	wget -O /tmp/ThirdParty-v1706.tgz https://sourceforge.net/projects/openfoam/files/v1706/ThirdParty-v1706.tgz && \
 	mkdir -p /opt/OpenFOAM && \
@@ -41,15 +82,9 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	tar -zxf /tmp/OpenFOAM-v1706.tgz && \
 	tar -zxf /tmp/ThirdParty-v1706.tgz && \
 	rm -rf /tmp/OpenFOAM-v1706.tgz /tmp/ThirdParty-v1706.tgz && \
-	apt-get install -y bc build-essential flex bison cmake zlib1g-dev libboost-system-dev libboost-thread-dev libopenmpi-dev openmpi-bin gnuplot libreadline-dev libncurses-dev libxt-dev && \
-	apt-get install -y software-properties-common && \
-	add-apt-repository -y ppa:rock-core/qt4 && \
-	apt-get update && \
-	apt-get install -y qt4-dev-tools libqt4-dev libqt4-opengl-dev freeglut3-dev libqtwebkit-dev && \
-	apt-get install -y libscotch-dev libcgal-dev && \
 	echo '. /opt/OpenFOAM/OpenFOAM-v1706/etc/bashrc' >> /home/hy2user/.bashrc && \
 	. /opt/OpenFOAM/OpenFOAM-v1706/etc/bashrc && \
-	export WM_NCOMPPROCS=$NUMPROCS && \
+	export WM_NCOMPPROCS=${NPROCS} && \
 	cd $WM_THIRD_PARTY_DIR && \
 	./Allwmake && \
 	rm -rf build gcc-* gmp-* mpfr-* binutils-* boost* ParaView-* qt-* *.tgz *.tar.gz && \
@@ -60,17 +95,16 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	rm -rf build && \
 	mkdir -p "$WM_PROJECT_USER_DIR" && \
 	cd $WM_PROJECT_USER_DIR && \
-	apt-get install -y git && \
 	git clone --depth 1 --branch master --single-branch https://github.com/hystrath/hyStrath.git && \
 	cd hyStrath && \
 	sed -i '/^progress_bar()/,/^}/c\progress_bar() { :; }' install.sh && \
-	grep -A2 "^progress_bar()" install.sh && \
-	echo "1" | ./install.sh $NUMPROCS && \
+	echo "1" | ./install.sh ${NPROCS} && \
 	su hy2user -c '. /home/hy2user/.bashrc && test -x "$FOAM_APPBIN/hy2Foam"' && \
 	rm -rf .git && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.o" -delete 2>/dev/null || true && \
 	find $WM_PROJECT_USER_DIR/hyStrath -name "*.dep" -delete 2>/dev/null || true && \
 	chown -R hy2user:hy2user /home/hy2user && \
+	apt-get purge --auto-remove -y ${BUILD_PACKGES} && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
