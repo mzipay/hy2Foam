@@ -65,7 +65,7 @@ jobs:
           sudo systemctl start docker
           docker info | grep "Docker Root Dir"
           echo "Disk space after Docker restart:"
-          df -h /
+          df -h
 
       - name: Check out repository
         uses: actions/checkout@v4
