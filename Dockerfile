@@ -35,6 +35,7 @@ ARG REQUIRED_PACKAGES="\
  libboost-system-dev \
  libboost-thread-dev \
  libcgal-dev \
+ libfl-dev \
  libncurses-dev \
  libopenmpi-dev \
  libreadline-dev \
@@ -83,23 +84,20 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
 	. /opt/OpenFOAM/OpenFOAM-v1706/etc/bashrc && \
 	export WM_NCOMPPROCS=${NPROCS} && \
 	cd "${WM_THIRD_PARTY_DIR}" && \
-	./Allwmake && \
+	./Allwmake 2>&1 | tee /tmp/ThirdParty-v1706_Allwmake.log && \
 	rm -rf build gcc-* gmp-* mpfr-* binutils-* boost* ParaView-* qt-* *.tgz *.tar.gz && \
 	cd "${WM_PROJECT_DIR}" && \
-	./Allwmake && \
+	./Allwmake 2>&1 | tee /tmp/OpenFOAM-v1706_Allwmake.log && \
+	test -d "$FOAM_APPBIN" && \
+	test -x "$FOAM_APPBIN/blockMesh" && \
+	test -x "$FOAM_APPBIN/checkMesh" && \
+	test -x "$FOAM_APPBIN/icoFoam" && \
+	test -x "$FOAM_APPBIN/simpleFoam" && \
+	echo "CORE_OPENFOAM_BUILD_VERIFIED" && \
 	find build -name "*.o" -delete 2>/dev/null || true && \
 	find build -name "*.dep" -delete 2>/dev/null || true && \
 	rm -rf build && \
 	mkdir -p "${WM_PROJECT_USER_DIR}" && \
-	cd "${WM_PROJECT_USER_DIR}" && \
-	git clone --depth 1 --branch ${HYSTRATH_BRANCH} --single-branch https://github.com/hystrath/hyStrath.git && \
-	cd hyStrath && \
-	sed -i '/^progress_bar()/,/^}/c\progress_bar() { :; }' install.sh && \
-	echo "1" | ./install.sh ${NPROCS} && \
-	su hy2user -c '. /home/hy2user/.bashrc && test -x "${FOAM_APPBIN}/hy2Foam"' && \
-	rm -rf .git && \
-	find $WM_PROJECT_USER_DIR/hyStrath -name "*.o" -delete 2>/dev/null || true && \
-	find $WM_PROJECT_USER_DIR/hyStrath -name "*.dep" -delete 2>/dev/null || true && \
 	chown -R hy2user:hy2user /home/hy2user && \
 	apt-get purge --auto-remove -y ${BUILD_PACKAGES}
 
