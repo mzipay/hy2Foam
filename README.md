@@ -1,4 +1,4 @@
-# ninthtest/hy2foam
+# mzipay/hy2Foam
 
 > hy2Foam-container: a Dockerfile for building the hy2Foam CFD solver in OCI
 > Copyright (C) 2026  Matthew Zipay
