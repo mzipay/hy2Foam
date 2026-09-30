@@ -20,6 +20,14 @@ This project contains the multi-stage *Dockerfile* used to create an OCI image
 for the [hy2Foam](https://hystrath.github.io/solvers/fleming/hy2foam/) flow
 solver.
 
+## Apptainer instructions
+
+To create an [Apptainer](https://apptainer.org/) SIF file from the latest image:
+
+```console
+apptainer build hy2foam.sif docker://ghcr.io/mzipay/hy2foam
+```
+
 ## Docker instructions
 
 > [!TIP]
@@ -63,12 +71,3 @@ docker build --build-arg NPROCS=2 -t hy2foam .
 
 Simply change the above-mentioned `docker` commands into
 `podman --format docker` commands. (All other arguments remain the same.)
-
-## Apptainer instructions
-
-To create an [Apptainer](https://apptainer.org/) SIF file from the latest image:
-
-```console
-apptainer build hy2foam.sif docker://ghcr.io/mzipay/hy2foam
-```
-
