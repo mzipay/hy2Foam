@@ -16,7 +16,59 @@
 > You should have received a copy of the GNU Affero General Public License
 > along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-This project contains the *Dockerfile* used to create an OCI image for
-the [hy2Foam](https://hystrath.github.io/solvers/fleming/hy2foam/) flow
+This project contains the multi-stage *Dockerfile* used to create an OCI image
+for the [hy2Foam](https://hystrath.github.io/solvers/fleming/hy2foam/) flow
 solver.
+
+## Docker instructions
+
+> [!TIP]
+> NPROCS=2 here is just a "safe" default.
+>
+> The "ideal" value to use for the NPROCS build argument depends on your host
+> system. For the quickest build, use *min(your-CPU-cores, 8)*.
+
+```console
+docker build --build-arg NPROCS=2 -t hy2foam .
+```
+
+### By stage
+
+> [!TIP]
+> These steps are only useful for local testing of changes to individual
+> stages in *Dockerfile*.
+>
+> For most users, the `docker build` instruction above is sufficient to produce
+> the final image.
+
+Stage 1 (openfoam):
+
+```console
+docker build --build-arg NPROCS=2 --target openfoam -t of1706 .
+```
+
+Stage 2 (hystrath):
+
+```console
+docker build --build-arg NPROCS=2 --target hystrath -t hydev .
+```
+
+Stage 3 (runtime):
+
+```console
+docker build --build-arg NPROCS=2 -t hy2foam .
+```
+
+## Podman instructions
+
+Simply change the above-mentioned `docker` commands into
+`podman --format docker` commands. (All other arguments remain the same.)
+
+## Apptainer instructions
+
+To create an [Apptainer](https://apptainer.org/) SIF file from the latest image:
+
+```console
+apptainer build hy2foam.sif docker://ghcr.io/mzipay/hy2foam
+```
 

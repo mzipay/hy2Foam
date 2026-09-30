@@ -1,5 +1,6 @@
 *.bak
 *.log
+*.sif
 *.swp
 *.tgz
 *.tmp
